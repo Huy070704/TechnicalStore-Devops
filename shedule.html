@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chỉnh sửa ca trực</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body {
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    /* Modal Container */
+    .modal-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 560px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+    }
+
+    /* Header */
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .modal-header p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      color: #777;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .btn-close:hover {
+      color: #000;
+    }
+
+    /* Shift Info Card */
+    .shift-info-card {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+
+    .shift-info-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .shift-icon {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    .shift-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .shift-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #222;
+    }
+
+    .time-badge {
+      font-size: 11px;
+      border: 1px solid #ccc;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #555;
+    }
+
+    .shift-date {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .tag-fixed {
+      font-size: 11px;
+      border: 1px solid #999;
+      padding: 3px 8px;
+      border-radius: 12px;
+      color: #444;
+      background: #fff;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .required {
+      color: #d32f2f;
+    }
+
+    .tag-note {
+      font-size: 11px;
+      border: 1px solid #ccc;
+      color: #555;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .input-control, select {
+      width: 100%;
+      height: 40px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #333;
+      background: #fff;
+      outline: none;
+    }
+
+    .input-control:focus, select:focus {
+      border-color: #333;
+    }
+
+    /* Notice Box (Bác sĩ trực thuộc phòng) */
+    .notice-box {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f7f7f7;
+      font-size: 12px;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Readonly Box (Phòng làm việc) */
+    .readonly-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7f7f7;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      height: 40px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .room-tag {
+      font-weight: 600;
+      color: #222;
+      margin-right: 4px;
+    }
+
+    .room-sub {
+      color: #777;
+      font-size: 12px;
+    }
+
+    /* Footer Buttons */
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-remove {
+      background: #fff;
+      border: 1px solid #999;
+      color: #333;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-remove:hover {
+      background: #f5f5f5;
+      border-color: #555;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid #ccc;
+      color: #444;
+    }
+
+    .btn-secondary:hover {
+      background: #f5f5f5;
+    }
+
+    .btn-primary {
+      background: #333;
+      border: 1px solid #333;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #111;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="modal-container">
+    <!-- Header -->
+    <div class="modal-header">
+      <div>
+        <h2>Chỉnh sửa ca trực</h2>
+        <p>Nhân viên phụ trách ca và phòng làm việc được liên kết tự động theo phân công</p>
+      </div>
+      <button class="btn-close" aria-label="Đóng">&times;</button>
+    </div>
+
+    <!-- Thông tin ca trực hiện tại -->
+    <div class="shift-info-card">
+      <div class="shift-info-left">
+        <div class="shift-icon">☀</div>
+        <div>
+          <div class="shift-name-row">
+            <span class="shift-title">Ca Sáng</span>
+            <span class="time-badge">08:00 – 11:30</span>
+          </div>
+          <div class="shift-date">📅 Ngày trực: <strong>Thứ Bảy, 07/11/2026</strong></div>
+        </div>
+      </div>
+      <span class="tag-fixed">Cố định</span>
+    </div>
+
+    <!-- Bác sĩ phụ trách ca -->
+    <div class="form-group">
+      <div class="label-row">
+        <label>Bác sĩ phụ trách ca <span class="required">*</span></label>
+        <span class="tag-note">Phòng có 1 Bác sĩ phụ trách</span>
+      </div>
+      <select>
+        <option value="1" selected>BSCKI Phạm Minh Châu (Bác sĩ)</option>
+        <option value="2">ThS.BS Lê Thị Bình (Bác sĩ)</option>
+        <option value="3">BSCKII Trần Văn An (Bác sĩ)</option>
+      </select>
+      <div class="notice-box">
+        <span>✓</span>
+        <span>Bác sĩ trực thuộc phòng: <strong>BSCKI Phạm Minh Châu (Bác sĩ)</strong></span>
+      </div>
+    </div>
+
+    <!-- Phòng làm việc -->
+    <div class="form-group">
+      <div class="label-row">
+        <label>Phòng làm việc <span class="required">*</span></label>
+        <span class="tag-note">🔗 Đã cố định theo ô chọn</span>
+      </div>
+      <div class="readonly-box">
+        <div>
+          <span class="room-tag">[PK-NOI-CXK]</span>
+          <span>Phòng khám Nội cơ-xương-khớp</span>
+          <span class="room-sub">(Khoa Nội)</span>
+        </div>
+        <span class="tag-fixed">Cố định</span>
+      </div>
+    </div>
+
+    <!-- Ghi chú ca trực -->
+    <div class="form-group">
+      <div class="label-row">
+        <label>Ghi chú ca trực</label>
+      </div>
+      <input 
+        type="text" 
+        class="input-control" 
+        placeholder="Ví dụ: Trực chính, khám cấp cứu..."
+      />
+    </div>
+
+    <!-- Nút hành động -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-remove">
+        <span>🗑</span> Gỡ ca trực
+      </button>
+      <div class="footer-right">
+        <button type="button" class="btn btn-secondary">Đóng</button>
+        <button type="button" class="btn btn-primary">Cập nhật phân công</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

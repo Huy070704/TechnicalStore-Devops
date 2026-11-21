@@ -1,0 +1,6 @@
+[
+  { "name": "admin", "slug": "admin" },
+  { "name": "manager", "slug": "manager" },
+  { "name": "staff", "slug": "staff" },
+  { "name": "customer", "slug": "customer" }
+]

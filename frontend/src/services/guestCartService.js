@@ -1,0 +1,96 @@
+import { MAX_CART_LINE_ITEMS, MAX_ITEM_QUANTITY } from '@/constants/cart';
+const GUEST_CART_KEY = 'guestCart';
+export const guestCartService = {
+    getCart() {
+        try {
+            const cartData = localStorage.getItem(GUEST_CART_KEY);
+            if (cartData) {
+                return JSON.parse(cartData);
+            }
+        }
+        catch (error) {
+            console.error('Error loading guest cart:', error);
+        }
+        return { items: [], totalAmount: 0 };
+    },
+    saveCart(cart) {
+        try {
+            localStorage.setItem(GUEST_CART_KEY, JSON.stringify(cart));
+        }
+        catch (error) {
+            console.error('Error saving guest cart:', error);
+        }
+    },
+    addToCart(product, quantity = 1) {
+        if (quantity <= 0) {
+            throw new Error('Quantity must be greater than 0');
+        }
+        const cart = this.getCart();
+        const existingItem = cart.items.find((item) => item.productId === product.id);
+        const stockCap = Math.min(product.stock > 0 ? product.stock : MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY);
+        if (existingItem) {
+            const newQuantity = existingItem.quantity + quantity;
+            if (newQuantity > stockCap) {
+                throw new Error(`Chỉ còn ${stockCap} sản phẩm trong kho`);
+            }
+            existingItem.quantity = newQuantity;
+        }
+        else {
+            if (cart.items.length >= MAX_CART_LINE_ITEMS) {
+                throw new Error(`Giỏ hàng đầy. Tối đa ${MAX_CART_LINE_ITEMS} loại sản phẩm`);
+            }
+            if (quantity > stockCap) {
+                throw new Error(`Chỉ còn ${stockCap} sản phẩm trong kho`);
+            }
+            cart.items.push({
+                productId: product.id,
+                quantity,
+                price: product.price,
+                name: product.name,
+                image: product.image,
+                category: product.category,
+                stock: product.stock,
+            });
+        }
+        cart.totalAmount = this.calculateTotal(cart.items);
+        this.saveCart(cart);
+        return cart;
+    },
+    clearCart() {
+        const emptyCart = { items: [], totalAmount: 0 };
+        this.saveCart(emptyCart);
+        return emptyCart;
+    },
+    calculateTotal(items) {
+        return Math.max(0, Number(items
+            .reduce((total, item) => total + item.price * item.quantity, 0)
+            .toFixed(2)));
+    },
+    getItemQuantity(productId) {
+        const item = this.getCart().items.find((i) => i.productId === productId);
+        return item ? item.quantity : 0;
+    },
+    updateQuantity(productId, quantity) {
+        const cart = this.getCart();
+        const item = cart.items.find((i) => i.productId === productId);
+        if (!item) {
+            throw new Error('Sản phẩm không có trong giỏ');
+        }
+        const stockCap = Math.min(item.stock > 0 ? item.stock : MAX_ITEM_QUANTITY, MAX_ITEM_QUANTITY);
+        if (quantity <= 0) {
+            cart.items = cart.items.filter((i) => i.productId !== productId);
+        }
+        else if (quantity > stockCap) {
+            throw new Error(`Chỉ còn ${stockCap} sản phẩm trong kho`);
+        }
+        else {
+            item.quantity = quantity;
+        }
+        cart.totalAmount = this.calculateTotal(cart.items);
+        this.saveCart(cart);
+        return cart;
+    },
+    removeItem(productId) {
+        return this.updateQuantity(productId, 0);
+    },
+};
