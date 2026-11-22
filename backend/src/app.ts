@@ -177,6 +177,17 @@ export default class App {
   }
 
   private initializeRoutes() {
+    // Health check endpoint (phục vụ Docker Healthcheck & Load Balancers)
+    const healthHandler = (_req: express.Request, res: express.Response) => {
+      res.status(200).json({
+        status: "ok",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+      });
+    };
+    this.app.get("/health", healthHandler);
+    this.app.get("/api/health", healthHandler);
+
     useContainer(Container);
     useExpressServer(this.app, {
       routePrefix: "/api",
