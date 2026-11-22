@@ -34,5 +34,9 @@ COPY --chown=node:node . .
 EXPOSE 8080
 ENV PORT=8080
 
+# Healthcheck: Docker tự kiểm tra backend còn sống không mỗi 30s
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD wget -qO- http://localhost:8080/health || exit 1
+
 # Chạy project TypeScript trực tiếp trong production
 CMD ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/server.ts"]

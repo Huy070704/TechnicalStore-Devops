@@ -16,6 +16,12 @@ services:
     environment:
       - PORT=8080
       # - NODE_ENV=production # Mở comment khi muốn chạy production mode hoàn toàn
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   frontend:
     build:
@@ -26,4 +32,5 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
