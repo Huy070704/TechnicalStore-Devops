@@ -1,0 +1,47 @@
+# ===================================================
+# DOCKER COMPOSE: DEVELOPMENT (HOT-RELOAD)
+# Lệnh chạy: docker compose -f docker-compose.dev.yml up --build
+# ===================================================
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development # Sử dụng stage development trong Dockerfile
+    container_name: technical-store-backend-dev
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=8080
+      - NODE_ENV=development
+    volumes:
+      # Ánh xạ toàn bộ thư mục backend vào container -> Sửa code là nodemon tự reload!
+      - ./backend:/app
+      # Anonymous volume: Giữ nguyên node_modules của container (Alpine), tránh bị ghi đè bởi host
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: technical-store-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
