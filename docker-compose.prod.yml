@@ -1,0 +1,44 @@
+# ===================================================
+# DOCKER COMPOSE: PRODUCTION (AZURE & DEPLOYMENT)
+# Lệnh chạy: docker compose -f docker-compose.prod.yml up -d
+# ===================================================
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production # Sử dụng stage production trong Dockerfile
+    image: thanhhuy0707/technical-store-api:latest
+    container_name: technical-store-backend-prod
+    restart: always # Tự khởi động lại nếu crash hoặc khi server reboot
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      - 1.1.1.1
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: thanhhuy0707/technical-store-frontend:latest
+    container_name: technical-store-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+

@@ -19,7 +19,25 @@ COPY --chown=node:node package*.json ./
 RUN npm ci
 
 # ---------------------------------------------------
-# 3. Production stage
+# 3. Development stage: Hot-reload cho lập trình viên
+# ---------------------------------------------------
+FROM base AS development
+ENV NODE_ENV=development
+USER node
+
+# Copy node_modules từ deps stage
+COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+# Copy toàn bộ mã nguồn backend vào container
+COPY --chown=node:node . .
+
+EXPOSE 8080
+ENV PORT=8080
+
+# Chạy hot-reload bằng nodemon
+CMD ["npm", "run", "dev"]
+
+# ---------------------------------------------------
+# 4. Production stage
 # ---------------------------------------------------
 FROM base AS production
 ENV NODE_ENV=production

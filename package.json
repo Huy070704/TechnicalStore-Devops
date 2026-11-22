@@ -11,6 +11,9 @@
     "backend"
   ],
   "scripts": {
+    "dev:docker": "docker compose -f docker-compose.dev.yml up --build",
+    "prod:docker": "docker compose -f docker-compose.prod.yml up -d",
+    "down:docker": "docker compose -f docker-compose.dev.yml -f docker-compose.prod.yml down",
     "concurrent": "concurrently --shell=powershell \"yarn workspace frontend dev\" \"yarn workspace backend dev\""
   },
   "devDependencies": {

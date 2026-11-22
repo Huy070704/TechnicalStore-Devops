@@ -165,8 +165,28 @@ server {
 
 ---
 
-### 3.3. `docker-compose.yml`
-File này đóng vai trò nhạc trưởng, liên kết tất cả các container lại với nhau:
+### 3.3. Phân tách `docker-compose.dev.yml` và `docker-compose.prod.yml`
+
+Hệ thống được chia làm 2 file compose riêng biệt phục vụ 2 mục đích:
+
+#### A. File `docker-compose.dev.yml` (Cho Lập trình viên - Có Hot-reload)
+* **Tính năng Volumes:** Ánh xạ thư mục máy host `./backend` vào `/app` trong container.
+* **Anonymous Volume:** `/app/node_modules` giúp giữ nguyên thư viện của container Linux, không bị xung đột với máy host.
+* **Lệnh chạy:** Chạy `nodemon` tự động reload khi sửa file `.ts` mà **không cần build lại Docker**.
+* **Khởi chạy:**
+  ```bash
+  docker compose -f docker-compose.dev.yml up --build
+  # hoặc dùng script ngắn: npm run dev:docker
+  ```
+
+#### B. File `docker-compose.prod.yml` (Cho Môi trường Chạy thật - Azure)
+* **Bảo mật & Đóng gói cứng:** Không mount code ra máy ngoài, dùng Image đóng gói sẵn (`thanhhuy0707/technical-store-api:latest`).
+* **Độ tin cậy:** `restart: always` tự bật lại khi server reboot, kiểm tra `healthcheck` tự động.
+* **Khởi chạy:**
+  ```bash
+  docker compose -f docker-compose.prod.yml up -d
+  # hoặc dùng script ngắn: npm run prod:docker
+  ```
 
 ```yaml
 services:
